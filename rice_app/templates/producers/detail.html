@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Detalle del Productor{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-card">
+    <p class="eyebrow">Productor</p>
+    <h2>{{ producer.name }}</h2>
+    <p class="muted">
+      {% if producer.document_number %}Doc: {{ producer.document_number }}{% endif %}
+      {% if producer.document_number and producer.phone %} | {% endif %}
+      {% if producer.phone %}Tel: {{ producer.phone }}{% endif %}
+    </p>
+    {% if producer.location %}
+      <p class="muted">Ubicacion: {{ producer.location }}</p>
+    {% endif %}
+    {% if producer.notes %}
+      <p class="muted">{{ producer.notes }}</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('producers.delete', producer_id=producer.id) }}" style="margin-top: 16px;" onsubmit="return confirm('¿Estas seguro de que deseas eliminar este productor y todos sus lotes asociados? Esta accion no se puede deshacer.');">
+      <button type="submit" class="ghost-btn" style="color: var(--danger); border-color: var(--danger);">Eliminar productor</button>
+    </form>
+  </div>
+  <div class="stats-grid">
+    <article class="stat-card">
+      <span>Flujo sugerido</span>
+      <strong>1. Crear lote</strong>
+    </article>
+    <article class="stat-card">
+      <span>Siguiente paso</span>
+      <strong>2. Registrar 3 muestras</strong>
+    </article>
+    <article class="stat-card">
+      <span>Resultado</span>
+      <strong>3. Validar similitud</strong>
+    </article>
+    <article class="stat-card">
+      <span>Analisis final</span>
+      <strong>4. Proyectar lote</strong>
+    </article>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Lotes del productor</p>
+      <h3>Registrar y abrir lotes desde aqui</h3>
+    </div>
+    <a class="ghost-btn" href="{{ url_for('lots.create', producer_id=producer.id) }}">Nuevo lote para este productor</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Codigo</th>
+          <th>Variedad</th>
+          <th>Sacos</th>
+          <th>Muestras</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lot in lots %}
+          <tr>
+            <td>{{ lot.code }}</td>
+            <td>{{ lot.variety }}</td>
+            <td>{{ "%.2f"|format(lot.total_bags) }} sacos</td>
+            <td>{{ lot.sample_count }}</td>
+            <td><a href="{{ url_for('lots.detail', lot_id=lot.id) }}">Abrir lote</a></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5">Este productor todavia no tiene lotes registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

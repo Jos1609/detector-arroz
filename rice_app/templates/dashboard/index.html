@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-card">
+    <p class="eyebrow">Resumen</p>
+    <h2>Control rápido de productores, lotes y muestras</h2>
+    <p class="muted">Cada lote se valida con 3 pruebas. El sistema compara si los porcentajes son similares entre esas pruebas antes de dar el analisis final del arroz.</p>
+  </div>
+  <div class="stats-grid">
+    <article class="stat-card"><span>Productores</span><strong>{{ stats.producers }}</strong></article>
+    <article class="stat-card"><span>Lotes</span><strong>{{ stats.lots }}</strong></article>
+    <article class="stat-card"><span>Muestras</span><strong>{{ stats.samples }}</strong></article>
+    <article class="stat-card"><span>Lotes con menos de 3 muestras</span><strong>{{ stats.pending_minimum }}</strong></article>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Actividad reciente</p>
+      <h3>Últimos lotes</h3>
+    </div>
+    <a class="ghost-btn" href="{{ url_for('lots.create') }}">Nuevo lote</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Productor</th>
+          <th>Variedad</th>
+          <th>Sacos</th>
+          <th>Muestras</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lot in recent_lots %}
+          <tr>
+            <td>{{ lot.code }}</td>
+            <td>{{ lot.producer_name }}</td>
+            <td>{{ lot.variety }}</td>
+            <td>{{ "%.2f"|format(lot.total_bags) }} sacos</td>
+            <td>{{ lot.sample_count }}</td>
+            <td><a href="{{ url_for('lots.detail', lot_id=lot.id) }}">Ver detalle</a></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6">Todavía no hay lotes registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

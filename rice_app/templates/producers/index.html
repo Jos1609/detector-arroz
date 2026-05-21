@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Productores{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Feature productores</p>
+      <h2>Productores registrados</h2>
+    </div>
+    <a class="ghost-btn" href="{{ url_for('producers.create') }}">Nuevo productor</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Documento</th>
+          <th>Teléfono</th>
+          <th>Ubicación</th>
+          <th>Lotes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producer in producers %}
+          <tr>
+            <td><a href="{{ url_for('producers.detail', producer_id=producer.id) }}">{{ producer.name }}</a></td>
+            <td>{{ producer.document_number or "-" }}</td>
+            <td>{{ producer.phone or "-" }}</td>
+            <td>{{ producer.location or "-" }}</td>
+            <td>{{ producer.lot_count }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5">No hay productores registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

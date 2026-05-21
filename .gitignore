@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+build/
+dist/
+dist - copia/
+
+data/
+runs/
+web/storage/
+best/
+
+yolov8n-cls.pt
+
+captura_*.jpg
+comparacion_*.png
+comparacion_*.csv
+
+.DS_Store
+Thumbs.db
+*.rar
+*.zip
+.git.backup-*/

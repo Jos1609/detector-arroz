@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Lotes{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Feature lotes</p>
+      <h2>Lotes registrados</h2>
+    </div>
+    <a class="ghost-btn" href="{{ url_for('lots.create') }}">Nuevo lote</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Productor</th>
+          <th>Variedad</th>
+          <th>Sacos</th>
+          <th>Muestras</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for lot in lots %}
+          <tr>
+            <td>{{ lot.code }}</td>
+            <td>{{ lot.producer_name }}</td>
+            <td>{{ lot.variety }}</td>
+            <td>{{ "%.2f"|format(lot.total_bags) }} sacos</td>
+            <td>{{ lot.sample_count }}</td>
+            <td><a href="{{ url_for('lots.detail', lot_id=lot.id) }}">Abrir</a></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6">No hay lotes registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Lote{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Nuevo lote</p>
+      <h2>Registrar lote</h2>
+    </div>
+  </div>
+  {% if producers %}
+    <form method="post" class="form-grid">
+      <div>
+        <label for="producer_id">Productor</label>
+        <select id="producer_id" name="producer_id" required>
+          <option value="">Selecciona</option>
+          {% for producer in producers %}
+            <option value="{{ producer.id }}" {% if selected_producer_id and selected_producer_id|int == producer.id %}selected{% endif %}>{{ producer.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="code">Codigo del lote</label>
+        <input id="code" name="code" type="text" value="{{ next_lot_code }}" readonly>
+      </div>
+      <div>
+        <label for="variety">Variedad</label>
+        <input id="variety" name="variety" type="text" required>
+      </div>
+      <div>
+        <label for="total_bags">Tamano del lote (sacos)</label>
+        <input id="total_bags" name="total_bags" type="number" step="0.01" min="0.01" required>
+      </div>
+      <div class="span-2">
+        <label for="notes">Observaciones</label>
+        <textarea id="notes" name="notes" rows="4"></textarea>
+      </div>
+      <div class="actions span-2">
+        <a class="ghost-btn" href="{{ url_for('lots.index') }}">Cancelar</a>
+        <button type="submit">Guardar lote</button>
+      </div>
+    </form>
+  {% else %}
+    <p class="muted">Primero debes registrar un productor.</p>
+    <a class="ghost-btn" href="{{ url_for('producers.create') }}">Crear productor</a>
+  {% endif %}
+</section>
+{% endblock %}

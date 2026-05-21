@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Productor{% endblock %}
+{% block content %}
+<section class="panel narrow">
+  <div class="panel-head">
+    <div>
+      <p class="eyebrow">Nuevo registro</p>
+      <h2>Crear productor</h2>
+    </div>
+  </div>
+  <form method="post" class="form-grid">
+    <div>
+      <label for="name">Nombre</label>
+      <input id="name" name="name" type="text" required>
+    </div>
+    <div>
+      <label for="document_number">Documento</label>
+      <input id="document_number" name="document_number" type="text">
+    </div>
+    <div>
+      <label for="phone">Teléfono</label>
+      <input id="phone" name="phone" type="text">
+    </div>
+    <div>
+      <label for="location">Ubicación</label>
+      <input id="location" name="location" type="text">
+    </div>
+    <div class="span-2">
+      <label for="notes">Observaciones</label>
+      <textarea id="notes" name="notes" rows="4"></textarea>
+    </div>
+    <div class="actions span-2">
+      <a class="ghost-btn" href="{{ url_for('producers.index') }}">Cancelar</a>
+      <button type="submit">Guardar productor</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
