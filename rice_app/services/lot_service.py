@@ -21,6 +21,14 @@ def _spread(values: list[float]) -> float:
     return max(values) - min(values) if values else 0.0
 
 
+def _sample_value(sample, key: str, default=0):
+    try:
+        value = sample[key]
+    except (KeyError, IndexError, TypeError):
+        return default
+    return default if value is None else value
+
+
 def summarize_lot(total_bags: float, samples: Iterable[dict]) -> dict[str, float]:
     sample_list = list(samples)
     total_samples = len(sample_list)
@@ -28,9 +36,9 @@ def summarize_lot(total_bags: float, samples: Iterable[dict]) -> dict[str, float
     chalky_values = [float(sample["chalky_pct"]) for sample in sample_list]
     broken_values = [float(sample["broken_pct"]) for sample in sample_list]
 
-    total_healthy = sum(int(sample.get("healthy_count", 0)) for sample in sample_list)
-    total_chalky = sum(int(sample.get("chalky_count", 0)) for sample in sample_list)
-    total_broken = sum(int(sample.get("broken_count", 0)) for sample in sample_list)
+    total_healthy = sum(int(_sample_value(sample, "healthy_count", 0)) for sample in sample_list)
+    total_chalky = sum(int(_sample_value(sample, "chalky_count", 0)) for sample in sample_list)
+    total_broken = sum(int(_sample_value(sample, "broken_count", 0)) for sample in sample_list)
     total_grains = total_healthy + total_chalky + total_broken
 
     if total_grains > 0:
