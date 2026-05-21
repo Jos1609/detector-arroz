@@ -1,120 +1,166 @@
 {% extends "base.html" %}
 {% block title %}Detalle del Lote{% endblock %}
 {% block content %}
-<section class="hero">
-  <div class="hero-card">
-    <p class="eyebrow">Lote {{ lot.code }}</p>
-    <h2>{{ lot.producer_name }}</h2>
-    <p class="muted">Variedad {{ lot.variety }} | Tamano del lote {{ "%.2f"|format(lot.total_bags) }} sacos</p>
-    {% if lot.notes %}
-      <p class="muted">{{ lot.notes }}</p>
-    {% endif %}
-    <form method="post" action="{{ url_for('lots.delete', lot_id=lot.id) }}" style="margin-top: 16px;" onsubmit="return confirm('¿Estas seguro de que deseas eliminar este lote y todas sus pruebas? Esta accion no se puede deshacer.');">
-      <button type="submit" class="ghost-btn" style="color: var(--danger); border-color: var(--danger);">Eliminar lote</button>
-    </form>
-  </div>
-  <div class="stats-grid">
-    <article class="stat-card"><span>Pruebas</span><strong>{{ summary.sample_count }}/{{ summary.required_samples }}</strong></article>
-    <article class="stat-card"><span>Sanos promedio</span><strong>{{ "%.2f"|format(summary.healthy_avg_pct) }}%</strong></article>
-    <article class="stat-card"><span>Panza blanca promedio</span><strong>{{ "%.2f"|format(summary.chalky_avg_pct) }}%</strong></article>
-    <article class="stat-card"><span>Quebrados promedio</span><strong>{{ "%.2f"|format(summary.broken_avg_pct) }}%</strong></article>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-head">
-    <div>
-      <p class="eyebrow">Analisis del lote</p>
-      <h3>Resultado final con 3 pruebas</h3>
-    </div>
-    <span class="badge {% if summary.analysis_ready %}ok{% else %}warn{% endif %}">
-      {% if summary.analysis_ready %}Analisis confiable{% else %}Pendiente de validar{% endif %}
-    </span>
-  </div>
-  <p class="muted">{{ summary.analysis_message }}</p>
-  <div class="stats-grid">
-    <article class="stat-card"><span>Sanos estimados</span><strong>{{ "%.2f"|format(summary.healthy_estimated_bags) }} sacos</strong></article>
-    <article class="stat-card"><span>Panza blanca estimada</span><strong>{{ "%.2f"|format(summary.chalky_estimated_bags) }} sacos</strong></article>
-    <article class="stat-card"><span>Quebrados estimados</span><strong>{{ "%.2f"|format(summary.broken_estimated_bags) }} sacos</strong></article>
-    <article class="stat-card"><span>Margen maximo entre pruebas</span><strong>{{ "%.2f"|format(summary.similarity_tolerance_pct) }}%</strong></article>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-head">
-    <div>
-      <p class="eyebrow">Consistencia</p>
-      <h3>Comparacion entre pruebas</h3>
-    </div>
-  </div>
-  <div class="stats-grid">
-    <article class="stat-card"><span>Variacion de sanos</span><strong>{{ "%.2f"|format(summary.healthy_spread_pct) }}%</strong></article>
-    <article class="stat-card"><span>Variacion panza blanca</span><strong>{{ "%.2f"|format(summary.chalky_spread_pct) }}%</strong></article>
-    <article class="stat-card"><span>Variacion quebrados</span><strong>{{ "%.2f"|format(summary.broken_spread_pct) }}%</strong></article>
-    <article class="stat-card"><span>Pruebas faltantes</span><strong>{{ summary.remaining_samples }}</strong></article>
-  </div>
-</section>
-
-{% if summary.can_add_sample %}
-  <section class="panel">
-    <div class="panel-head">
-      <div>
-        <p class="eyebrow">Nueva prueba</p>
-        <h3>Procesar prueba {{ next_sample_number }} de {{ summary.required_samples }}</h3>
+<section class="lot-page">
+  <section class="lot-masthead">
+    <div class="lot-masthead-main">
+      <p class="eyebrow">Lote {{ lot.code }}</p>
+      <div class="lot-masthead-top">
+        <div>
+          <h2>{{ lot.producer_name }}</h2>
+          <p class="muted lot-masthead-copy">Variedad {{ lot.variety }} | {{ "%.2f"|format(lot.total_bags) }} sacos</p>
+        </div>
+        <span class="badge {% if summary.analysis_ready %}ok{% else %}warn{% endif %}">
+          {% if summary.analysis_ready %}Analisis confiable{% else %}Pendiente de validar{% endif %}
+        </span>
       </div>
+      <p class="lot-masthead-message">{{ summary.analysis_message }}</p>
+      {% if lot.notes %}
+        <p class="lot-masthead-notes">{{ lot.notes }}</p>
+      {% endif %}
     </div>
-    <form method="post" action="{{ url_for('samples.create') }}" enctype="multipart/form-data" class="form-grid">
-      <input type="hidden" name="lot_id" value="{{ lot.id }}">
-      <div class="span-2">
-        <label for="image">Imagen de la muestra</label>
-        <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.bmp,.webp,.heic,.heif" required>
+
+    <aside class="lot-masthead-side">
+      <div class="lot-side-stat">
+        <span>Pruebas</span>
+        <strong>{{ summary.sample_count }}/{{ summary.required_samples }}</strong>
       </div>
-      <div class="actions span-2">
-        <button type="submit">Procesar y guardar prueba</button>
+      <div class="lot-side-stat">
+        <span>Faltantes</span>
+        <strong>{{ summary.remaining_samples }}</strong>
       </div>
-    </form>
+      <div class="lot-side-stat">
+        <span>Margen permitido</span>
+        <strong>{{ "%.2f"|format(summary.similarity_tolerance_pct) }}%</strong>
+      </div>
+      <form method="post" action="{{ url_for('lots.delete', lot_id=lot.id) }}" class="lot-delete-form" onsubmit="return confirm('Â¿Estas seguro de que deseas eliminar este lote y todas sus pruebas? Esta accion no se puede deshacer.');">
+        <button type="submit" class="ghost-btn lot-delete-btn">Eliminar lote</button>
+      </form>
+    </aside>
   </section>
-{% endif %}
 
-<section class="panel">
-  <div class="panel-head">
-    <div>
-      <p class="eyebrow">Historial</p>
-      <h3>Pruebas del lote</h3>
+  {% if summary.can_add_sample %}
+    <section class="panel lot-upload-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Nueva prueba</p>
+          <h3>Procesar prueba {{ next_sample_number }} de {{ summary.required_samples }}</h3>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('samples.create') }}" enctype="multipart/form-data" class="lot-upload-form">
+        <input type="hidden" name="lot_id" value="{{ lot.id }}">
+        <label for="image" class="lot-upload-field">
+          <span>Imagen de la muestra</span>
+          <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.bmp,.webp,.heic,.heif" required>
+        </label>
+        <button type="submit">Procesar y guardar prueba</button>
+      </form>
+    </section>
+  {% endif %}
+
+  <section class="panel lot-tests-panel">
+    <div class="panel-head lot-tests-head">
+      <div>
+        <p class="eyebrow">Pruebas</p>
+        <h3>Resultados por muestra</h3>
+      </div>
+      <div class="lot-progress">
+        {% for index in range(1, summary.required_samples + 1) %}
+          <span class="lot-progress-step {% if index <= summary.sample_count %}done{% endif %}">{{ index }}</span>
+        {% endfor %}
+      </div>
     </div>
-  </div>
-  
-  <!-- Leyenda Visual -->
-  <div class="visual-legend">
-    <div class="legend-item"><div class="legend-color sano"></div> Sano</div>
-    <div class="legend-item"><div class="legend-color panza"></div> Panza Blanca</div>
-    <div class="legend-item"><div class="legend-color quebrado"></div> Quebrado</div>
-  </div>
 
-  <div class="samples-grid">
-    {% for sample in samples %}
-      <article class="sample-card">
-        <div class="sample-head">
-          <div>
-            <strong>Prueba {{ sample.sample_number }}</strong>
-            <p class="muted">Confianza {{ "%.1f"|format(sample.average_confidence * 100) }}%</p>
+    <div class="visual-legend lot-tests-legend">
+      <div class="legend-item"><div class="legend-color sano"></div> Sano</div>
+      <div class="legend-item"><div class="legend-color panza"></div> Panza Blanca</div>
+      <div class="legend-item"><div class="legend-color quebrado"></div> Quebrado</div>
+    </div>
+
+    <div class="lot-test-list">
+      {% for sample in samples %}
+        <article class="lot-test-item">
+          <a class="lot-test-image" href="{{ url_for('samples.files', kind='results', filename=sample.result_image_filename) }}" target="_blank">
+            <img src="{{ url_for('samples.files', kind='results', filename=sample.result_image_filename) }}" alt="Resultado de la prueba {{ sample.sample_number }}">
+          </a>
+
+          <div class="lot-test-content">
+            <div class="lot-test-header">
+              <div>
+                <p class="lot-test-kicker">Prueba {{ sample.sample_number }}</p>
+                <h4>{{ sample.total_detected }} granos detectados</h4>
+              </div>
+              <span class="lot-test-confidence">Confianza {{ "%.1f"|format(sample.average_confidence * 100) }}%</span>
+            </div>
+
+            <div class="lot-test-metrics">
+              <div class="lot-test-metric">
+                <span>Sanos</span>
+                <strong>{{ sample.healthy_count }}</strong>
+                <small>{{ "%.2f"|format(sample.healthy_pct) }}%</small>
+              </div>
+              <div class="lot-test-metric">
+                <span>Panza blanca</span>
+                <strong>{{ sample.chalky_count }}</strong>
+                <small>{{ "%.2f"|format(sample.chalky_pct) }}%</small>
+              </div>
+              <div class="lot-test-metric">
+                <span>Quebrados</span>
+                <strong>{{ sample.broken_count }}</strong>
+                <small>{{ "%.2f"|format(sample.broken_pct) }}%</small>
+              </div>
+            </div>
+
+            <div class="lot-test-links">
+              <a href="{{ url_for('samples.files', kind='results', filename=sample.result_image_filename) }}" target="_blank">Imagen procesada</a>
+              <a href="{{ url_for('samples.files', kind='uploads', filename=sample.image_filename) }}" target="_blank">Imagen original</a>
+              <a href="{{ url_for('samples.files', kind='results', filename=sample.result_json_filename) }}" target="_blank">Resultado JSON</a>
+            </div>
           </div>
-          <span class="badge">{{ sample.total_detected }} granos</span>
+        </article>
+      {% else %}
+        <div class="empty-samples-state">
+          <p class="eyebrow">Sin pruebas</p>
+          <h3>Todavia no hay muestras procesadas</h3>
+          <p class="muted">Registra la primera imagen para empezar a construir el analisis del lote.</p>
         </div>
-        <div class="sample-result">
-          <p>Sanos: {{ sample.healthy_count }} ({{ "%.2f"|format(sample.healthy_pct) }}%)</p>
-          <p>Panza blanca: {{ sample.chalky_count }} ({{ "%.2f"|format(sample.chalky_pct) }}%)</p>
-          <p>Quebrados: {{ sample.broken_count }} ({{ "%.2f"|format(sample.broken_pct) }}%)</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="lot-summary-grid">
+    <article class="panel lot-summary-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Promedio</p>
+          <h3>Composicion observada</h3>
         </div>
-        <div class="sample-actions">
-          <a href="{{ url_for('samples.files', kind='results', filename=sample.result_image_filename) }}" target="_blank">Ver imagen procesada</a>
-          <a href="{{ url_for('samples.files', kind='uploads', filename=sample.image_filename) }}" target="_blank">Ver original</a>
-          <a href="{{ url_for('samples.files', kind='results', filename=sample.result_json_filename) }}" target="_blank">Ver JSON</a>
+      </div>
+      <div class="lot-summary-stats">
+        <article class="stat-card"><span>Sanos promedio</span><strong>{{ "%.2f"|format(summary.healthy_avg_pct) }}%</strong></article>
+        <article class="stat-card"><span>Panza blanca</span><strong>{{ "%.2f"|format(summary.chalky_avg_pct) }}%</strong></article>
+        <article class="stat-card"><span>Quebrados</span><strong>{{ "%.2f"|format(summary.broken_avg_pct) }}%</strong></article>
+      </div>
+      <div class="lot-estimate-strip">
+        <div><span>Sanos estimados</span><strong>{{ "%.2f"|format(summary.healthy_estimated_bags) }} sacos</strong></div>
+        <div><span>Panza blanca estimada</span><strong>{{ "%.2f"|format(summary.chalky_estimated_bags) }} sacos</strong></div>
+        <div><span>Quebrados estimados</span><strong>{{ "%.2f"|format(summary.broken_estimated_bags) }} sacos</strong></div>
+      </div>
+    </article>
+
+    <article class="panel lot-summary-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Consistencia</p>
+          <h3>Diferencia entre pruebas</h3>
         </div>
-      </article>
-    {% else %}
-      <p class="muted">Todavia no hay pruebas para este lote.</p>
-    {% endfor %}
-  </div>
+      </div>
+      <div class="lot-summary-stats">
+        <article class="stat-card"><span>Variacion de sanos</span><strong>{{ "%.2f"|format(summary.healthy_spread_pct) }}%</strong></article>
+        <article class="stat-card"><span>Variacion panza blanca</span><strong>{{ "%.2f"|format(summary.chalky_spread_pct) }}%</strong></article>
+        <article class="stat-card"><span>Variacion quebrados</span><strong>{{ "%.2f"|format(summary.broken_spread_pct) }}%</strong></article>
+      </div>
+    </article>
+  </section>
 </section>
 {% endblock %}
